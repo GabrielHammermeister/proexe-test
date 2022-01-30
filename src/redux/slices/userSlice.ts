@@ -1,4 +1,4 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createSelector, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { RootState } from '../stores/userStore';
 
 type UserData = { 
@@ -10,7 +10,7 @@ type UserData = {
     city: string
   }
 }
-type User = { 
+export type User = { 
   id: number,
   name: string,
   username: string,
@@ -40,14 +40,19 @@ export const userSlice = createSlice({
           city: user.address.city,
           email: user.email
         }))
+    },
+    updateUserById: (state, action: PayloadAction<User>) => {
+      const users = state.value
+      if(users) {
+        const userIndex = action.payload.id
+        users.splice(userIndex - 1, 1, action.payload)
+        state.value = users
+      }
     }
   },
 });
 
-export const { fetchUsers } = userSlice.actions;
-export const selectUsers = (state: RootState) => state.users;
-export const findUserById = (state: RootState, userId: number) => {
-  
-}
+export const { fetchUsers, updateUserById } = userSlice.actions;
+export const selectUsers = (state: RootState) => state.users.value;
 
 export default userSlice.reducer;

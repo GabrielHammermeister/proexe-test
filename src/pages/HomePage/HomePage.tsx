@@ -4,67 +4,12 @@ import { Link } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import { fetchUsers, selectUsers } from "../../redux/slices/userSlice";
 
-
-// const columns: GridColDef[] = [
-//     { field: 'id', headerName: 'ID',type: 'number', width: 90, align: 'center', headerAlign: 'center' },
-//     {
-//         field: 'name',
-//         headerName: 'Name',
-//         width: 150,
-//         editable: true,
-
-//     },
-//     {
-//         field: 'username',
-//         headerName: 'Username',
-//         width: 150,
-//         editable: true,
-//     },
-//     {
-//         field: 'city',
-//         headerName: 'City',
-//         width: 110,
-//         editable: true,
-//     },
-//     {
-//         field: 'email',
-//         headerName: 'Email',
-//         width: 250,
-//         editable: true,
-//     },
-// ]
-
 export const HomePage = () => {
-    const dispatch = useAppDispatch()
-    const { users } = useAppSelector(selectUsers)
-    
-    
-    useEffect(() => {console.log("meus users", users)}, [users])
-
-    useEffect(() => {
-      const getUsers = async () => {
-          try {
-            const res = await fetch(process.env.REACT_APP_URL!)
-            const usersList = await res.json()
-            dispatch(fetchUsers(usersList))            
-          } catch(err) { console.error(err) }
-      };
-    
-      getUsers()
-    }, []);
-    
+    const users = useAppSelector(selectUsers)
 
     return (
         <>
             <div style={{minHeight: '400px', width: 'clamp(700px, 100%, 1000px)', margin: '0 auto'}}>
-                {/* <DataGrid
-                    columns={columns}
-                    rows={users!}
-                    pageSize={5}
-                    rowsPerPageOptions={[5]}
-                    checkboxSelection
-                    onrow
-                /> */}
                 <TableContainer component={Paper}>
                     <Table>
                         <TableHead style={{backgroundColor: '#00a5df', color: '#FFFFFF'}}>
