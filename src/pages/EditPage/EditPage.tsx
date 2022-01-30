@@ -1,13 +1,13 @@
 import React from "react"
-import { Link } from "react-router-dom"
+import { Link, useParams, useSearchParams } from "react-router-dom"
+import { EditForm } from "../../components/EditForm/EditForm"
 
 export const EditPage = () => {
+    const { userId } = useParams();    
+
     return (
         <>
-            
-            <h1>Edit Page!</h1>
-
-            <Link to='/home' >Home page</Link>
+            <EditForm userId={Number(userId)}/>
         </>
     )
 }

@@ -12,7 +12,7 @@ render(
       <Routes>
         <Route path='/' element={<HomePage/>}/>
         <Route path='/home' element={<HomePage/>}/>
-        <Route path='/edit' element={<EditPage/>}/>
+        <Route path='/edit/:userId' element={<EditPage/>}/>
       </Routes>
     </BrowserRouter>
   </Provider>
