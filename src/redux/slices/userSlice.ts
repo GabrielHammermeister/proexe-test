@@ -1,7 +1,7 @@
 import { createSelector, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { RootState } from '../stores/userStore';
 
-type UserData = { 
+export type UserData = { 
   id: number,
   name: string,
   username: string,
@@ -16,7 +16,6 @@ export type User = {
   username: string,
   email: string,
   city: string
-  
 }
 export interface UserState {
   value?: User[]
@@ -44,15 +43,25 @@ export const userSlice = createSlice({
     updateUserById: (state, action: PayloadAction<User>) => {
       const users = state.value
       if(users) {
-        const userIndex = action.payload.id
-        users.splice(userIndex - 1, 1, action.payload)
+        const userIndex = users.findIndex( user => user.id === action.payload.id)
+
+        users.splice(userIndex, 1, action.payload)
         state.value = users
       }
-    }
+    },
+    removeUserById: (state, action: PayloadAction<number>) => {
+      const users = state.value
+      if(users) {
+        const userIndex = users.findIndex( user => user.id === action.payload)
+
+        users.splice(userIndex, 1)
+        state.value = users
+      }
+    },
   },
 });
 
-export const { fetchUsers, updateUserById } = userSlice.actions;
+export const { fetchUsers, updateUserById, removeUserById } = userSlice.actions;
 export const selectUsers = (state: RootState) => state.users.value;
 
 export default userSlice.reducer;

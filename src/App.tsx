@@ -1,25 +1,23 @@
 import React, { useEffect } from "react";
-import { Provider } from "react-redux";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
+import './global.styles.css';
 import { EditPage } from "./pages/EditPage/EditPage";
 import { HomePage } from "./pages/HomePage/HomePage";
 import { useAppDispatch } from "./redux/hooks";
 import { fetchUsers } from "./redux/slices/userSlice";
-import { userStore } from "./redux/stores/userStore";
-
+import { getUsers } from './services/user'
 export const App = () => {
     
     const dispatch = useAppDispatch()
     useEffect(() => {
-    const getUsers = async () => {
-        try {
-            const res = await fetch(process.env.REACT_APP_URL!)
-            const usersList = await res.json()
-            dispatch(fetchUsers(usersList))            
-        } catch(err) { console.error(err) }
-    };
+        const fetchUsersData = async () => {
+            try {
+                const usersList = await getUsers()
+                dispatch(fetchUsers(usersList))            
+            } catch(err) { console.error(err) }
+        };
 
-    getUsers()
+        fetchUsersData()
     }, []);
     
     return (
