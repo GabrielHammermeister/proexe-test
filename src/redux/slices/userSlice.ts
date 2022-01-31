@@ -13,9 +13,9 @@ export type UserData = {
 export type User = { 
   id: number,
   name: string,
-  username: string,
+  username?: string,
   email: string,
-  city: string
+  city?: string
 }
 export interface UserState {
   value?: User[]
@@ -58,10 +58,19 @@ export const userSlice = createSlice({
         state.value = users
       }
     },
+    addNewUser: (state, action: PayloadAction<any>) => {      
+      const users = state.value
+      if(users) {
+        const newUser = action.payload
+        newUser.id = (users.length + 1)
+        users.push(newUser)
+        state.value = users
+      }
+    },
   },
 });
 
-export const { fetchUsers, updateUserById, removeUserById } = userSlice.actions;
+export const { fetchUsers, updateUserById, removeUserById, addNewUser } = userSlice.actions;
 export const selectUsers = (state: RootState) => state.users.value;
 
 export default userSlice.reducer;

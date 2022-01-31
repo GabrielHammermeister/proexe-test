@@ -1,25 +1,29 @@
-import { Alert, Box, Button, Card, CardContent, CardHeader, Collapse, Divider, FormHelperText, IconButton, Snackbar, TextField } from "@mui/material";
-import React, { FormEvent, useCallback, useEffect, useState } from "react";
+import { Alert, Box, Button, Card, CardContent, CardHeader, Divider, FormHelperText, Snackbar, TextField } from "@mui/material";
+import React, { FormEvent, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAppDispatch } from "../../redux/hooks";
-import { updateUserById, User } from "../../redux/slices/userSlice";
-import { updateUser } from "../../services/user";
+import { addNewUser, User } from "../../redux/slices/userSlice";
+import { createUser } from "../../services/user";
 
 interface EditFormProps {
     userData?: User
 }
 
-export const EditForm = ({ userData }: EditFormProps) => {
+export const AddForm = () => {
     const navigate = useNavigate()
     const [open, setOpen] = useState(false)
 
-    const [name, setName] = useState(userData?.name)
+    const [name, setName] = useState('')
     const [nameError, setNameError] = useState(false)
 
-    const [email, setEmail] = useState(userData?.email)
+    const [email, setEmail] = useState('')
     const [emailError, setEmailError] = useState(false)
 
     const dispatch = useAppDispatch()
+
+    const handleCancel = () => {
+        navigate('/home')
+    }
 
     const handleClose = () => {
         setOpen(false)
@@ -40,29 +44,29 @@ export const EditForm = ({ userData }: EditFormProps) => {
             setEmailError(true)
         }
 
-        if(userData && name && email) {
+        if(name && email) {
 
             if(!emailRegex.test(email)) {
                 setEmailError(true)
                 return          
             }
-
-            let updatedUser = {...userData}
-            updatedUser.name = name
-            updatedUser.email = email
-            dispatch(updateUserById(updatedUser))
             try {
-                updateUser(updatedUser)
+            
+                let newUser: User = {id: 0, name, email}
+            
+                const res = await createUser(newUser)
+                const createdUser = await res.json()                
+                dispatch(addNewUser(createdUser))
             } catch(err) { console.error(err) }
             setOpen(true)
-            
+
         }
     }
     
     return (
         <div style={{minHeight: '400px', height: '100vh', width: 'clamp(700px, 100%, 1000px)', margin: '0 auto', display: 'flex', alignItems: 'center'}}>
             <Card style={{width: '100%'}} sx={{p: 5}}>
-                <CardHeader title={userData ? `Edit user ${userData.id}`: 'User not found'}/>
+                <CardHeader title={'Add a new User'}/>
                 <Divider/>
                 <CardContent>
                     <Box
@@ -108,20 +112,28 @@ export const EditForm = ({ userData }: EditFormProps) => {
                         }
 
                         <Button 
+                            variant="outlined"
+                            size="large"
+                            color="error"
+                            sx={{mt: 7, mr: 4}}
+                            onClick={handleCancel}
+                        >
+                            cancel</Button>
+                        <Button 
                             variant="contained"
                             size="large"
                             color="primary"
                             type="submit"
                             sx={{mt: 7}} 
                         >
-                            Submit</Button>
+                            Save</Button>
                     </Box>
                 </CardContent>
             </Card> 
 
             <Snackbar open={open} autoHideDuration={5000} onClose={handleClose} sx={{width: '600px'}}>
                 <Alert onClose={handleClose} severity="success" sx={{ width: '100%' }}>
-                    User updated with success!
+                    User added with success!
                 </Alert>
             </Snackbar>
         </div>

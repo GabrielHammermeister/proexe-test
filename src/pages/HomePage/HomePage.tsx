@@ -58,14 +58,16 @@ export const HomePage = () => {
                             ))}
                         </TableBody>
                     </Table>
-                    <Button 
-                        sx={{m: 5}}
-                        size="large"
-                        variant="contained" 
-                        color="primary" 
-                        >
-                        Add New
-                    </Button>
+                    <Link to={`/add`} style={{textDecoration: 'none'}}>
+                        <Button 
+                            sx={{m: 5}}
+                            size="large"
+                            variant="contained" 
+                            color="primary" 
+                            >
+                            Add New User
+                        </Button>
+                    </Link>
                 </TableContainer>               
             </div>
 
