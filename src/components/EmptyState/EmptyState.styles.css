@@ -1,11 +1,12 @@
 .container {
     display: flex;
     flex-direction: column;
-    margin-top: 60px;
+    margin-top: 150px;
     align-items: center;
     gap: 20px;
 }
 
 .img-empty-state {
-    max-width: 250px;
+    max-width: 170px;
+    filter: grayscale(1);
 }

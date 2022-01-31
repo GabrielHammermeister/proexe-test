@@ -1,8 +1,10 @@
 /* eslint-disable no-restricted-globals */
 import { Alert, Button, Paper, Snackbar, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from "@mui/material";
+import { DataGrid, GridColDef, GridSelectionModel, GridValueGetterParams } from "@mui/x-data-grid";
 import React, { useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { ConfirmationModal } from "../../components/ConfirmationModal/ConfirmationModal";
+import { CustomDataGrid } from "../../components/CustomDataGrid/CustomDataGrid";
 import { CustomSnackbar } from "../../components/CustomSnackbar/CustomSnackbar";
 import { EmptyState } from "../../components/EmptyState/EmptyState";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
@@ -10,13 +12,19 @@ import { removeUserById, selectUsers } from "../../redux/slices/userSlice";
 import { deleteUserById } from "../../services/user";
 
 
+type Selection = {
+    selected: boolean,
+    list: GridSelectionModel
+}
+
 export const HomePage = () => {
 
     const [params, setParams] = useSearchParams()
 
     const [openSnackAdd, setOpenSnackAdd] = useState(params.get('redirect') === 'userAdded');
     const [openSnackEdit, setOpenSnackEdit] = useState(params.get('redirect') === 'userEdited');
-    
+    const [selection, setSelection] = useState<Selection>({ selected: false, list: []});
+
     const users = useAppSelector(selectUsers)
     const [openConfModal, setOpenConfModal] = useState(false);
     const dispatch = useAppDispatch()
@@ -40,83 +48,76 @@ export const HomePage = () => {
         setOpenConfModal(true)
         setSelectedUserId(userId)
     }
+    
+
+    const handleSelectionChange = (selectionModel: GridSelectionModel) => {
+        if(selectionModel.length === 0){
+            setSelection({ selected: false, list: selectionModel })
+        } else {
+            setSelection({ selected: true, list: selectionModel })
+        }
+    }
+
+    const handleRemoveSelected = () => {
+        selection.list.forEach(userId => {
+            deleteUserById(Number(userId))
+            dispatch(removeUserById(Number(userId)))
+        });
+    }
 
 
     return (
         <>
-            <div style={{minHeight: '400px', height: '100vh', width: 'clamp(700px, 100%, 1000px)', margin: '0 auto', display: 'flex', alignItems: 'center'}}>
-                <TableContainer component={Paper}>
-                    <Table>
-                        <TableHead style={{backgroundColor: '#00a5df', color: '#FFFFFF'}}>
-                            <TableRow >
-                                <TableCell>ID</TableCell>
-                                <TableCell>Name</TableCell>
-                                <TableCell>Username</TableCell>
-                                <TableCell>Email</TableCell>
-                                <TableCell>City</TableCell>
-                                <TableCell>Edit</TableCell>
-                                <TableCell>Delete</TableCell>
-                            </TableRow>
-                        </TableHead>
-                        <TableBody>
-                            {   users && users.length > 0 
-                                ?
-                                (
-                                    users?.map((user) => (
-                                        <TableRow key={user.id}>
-                                            <TableCell>{user.id}</TableCell>
-                                            <TableCell>{user.name}</TableCell>
-                                            <TableCell>{user.username}</TableCell>
-                                            <TableCell>{user.email}</TableCell>
-                                            <TableCell>{user.city}</TableCell>
-                                            <TableCell>
-                                                <Link to={`/edit/${user.id}`} style={{textDecoration: 'none'}}>
-                                                    <Button variant="contained" color="warning">Edit</Button>
-                                                </Link>
-                                            </TableCell>
-                                            <TableCell>
-                                                <Button 
-                                                variant="contained" 
-                                                color="error" 
-                                                onClick={() => handleSelectUser(user.id)}>
-                                                    Delete
-                                                </Button>
-                                            </TableCell>
-                                        </TableRow>
-                                        ))
-                                )
-                                :
-                                (
-                                    <TableRow>
-                                        <TableCell colSpan={7}>
-                                            <EmptyState/>
-                                        </TableCell>
-                                    </TableRow>
-                                )
+            <div style={{minHeight: '400px', height: '100vh', width: 'clamp(700px, 100%, 1000px)', margin: '0 auto', display: 'flex', alignItems: 'center', flexDirection: 'column'}}>
+                {
+                    users &&
+                    (
+                        <CustomDataGrid
+                            handleSelectUser={handleSelectUser}
+                            handleSelectionChange={handleSelectionChange}
+                            users={users}
+                        />
+                    )
+                }
 
-                            }
-                        </TableBody>
-                    </Table>
-                    {users && users.length > 0  &&
+                {
+                    users && users.length > 0  &&
+                    (
                         <Link to={`/add`} style={{textDecoration: 'none'}}>
+                            <Button 
+                                sx={{m: 5}}
+                                size="large"
+                                variant="contained" 
+                                color="primary" 
+                                >
+                                Add New User
+                            </Button>
+                        </Link>
+                    )
+                }
+
+                {
+                    selection.selected  &&
+                    (
                         <Button 
                             sx={{m: 5}}
                             size="large"
                             variant="contained" 
-                            color="primary" 
+                            color="primary"
+                            onClick={handleRemoveSelected}
                             >
-                            Add New User
+                            Remove Selected
                         </Button>
-                    </Link>
-                    }
-                </TableContainer>
-           
+                    )
+                }
+            
             </div>
             <ConfirmationModal
                 openModal={openConfModal}
                 setOpenModal={setOpenConfModal}
                 handleOnDelete={handleOnDelete}
             />
+
             <CustomSnackbar
                 openSnackbar={openSnackAdd}
                 handleCloseSnackbar={handleCloseSnack}
@@ -127,6 +128,7 @@ export const HomePage = () => {
                 handleCloseSnackbar={handleCloseSnack}
                 message="User updated with success!"
             />
+
         </>
     )
 }
