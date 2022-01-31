@@ -4,37 +4,34 @@ import { createSearchParams, useNavigate, useSearchParams } from "react-router-d
 import { useAppDispatch } from "../../redux/hooks";
 import { updateUserById, User } from "../../redux/slices/userSlice";
 import { updateUser } from "../../services/user";
+import { regex } from "../../utils/regex";
+import { CustomHelperText } from "../CustomHelperText/CustomHelperText";
 
 interface EditFormProps {
-    userData?: User
+    userData: User
 }
 
 export const EditForm = ({ userData }: EditFormProps) => {
+    
+    const dispatch = useAppDispatch()
     const navigate = useNavigate()
-    const [open, setOpen] = useState(false)
 
-    const [name, setName] = useState(userData?.name)
+    const [name, setName] = useState(userData.name)
     const [nameError, setNameError] = useState(false)
 
-    const [city, setCity] = useState(userData?.city)
-    const [cityError, setCityError] = useState(false)
-
-    const [username, setUsername] = useState(userData?.username)
-    const [usernameError, setUsernameError] = useState(false)
-
-    const [email, setEmail] = useState(userData?.email)
+    const [email, setEmail] = useState(userData.email)
     const [emailError, setEmailError] = useState(false)
-
-    const dispatch = useAppDispatch()
-    const [searchParams, setSearchParams] = useSearchParams()
+    
+    const [city, setCity] = useState(userData.city)
+    const [username, setUsername] = useState(userData.username)
+    
 
     const handleCancel = () => {
         navigate('/home')
     }
 
     const handleOnSubmit = async (event: FormEvent) => {
-        event.preventDefault()
-        const emailRegex = /^(([^<>()[\]\.,;:\s@\"]+(\.[^<>()[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
+        event.preventDefault()        
         setEmailError(false)
         setNameError(false)
 
@@ -45,19 +42,12 @@ export const EditForm = ({ userData }: EditFormProps) => {
         if(!email) {
             setEmailError(true)
         }
-        if(!username) {
-            setUsernameError(true)
-        }
-        if(!city) {
-            setCityError(true)
+        if(!regex.email.test(email)) {
+            setEmailError(true)
+            return          
         }
 
-        if(userData && name && email && city && username) {
-
-            if(!emailRegex.test(email)) {
-                setEmailError(true)
-                return          
-            }
+        if(userData && name && email) {
 
             let updatedUser = {...userData}
             updatedUser.name = name
@@ -99,13 +89,7 @@ export const EditForm = ({ userData }: EditFormProps) => {
                             onChange={(ev) => setName(ev.target.value)}
                             error={nameError} 
                         />
-                        {
-                            nameError ?
-                            
-                            (<FormHelperText error>This field is required</FormHelperText>)
-                            :
-                            (<FormHelperText>Enter a Name</FormHelperText>)
-                        }
+                        <CustomHelperText error={nameError} field="name"/>
 
                         <TextField 
                             sx={{mt: 7}} 
@@ -117,13 +101,7 @@ export const EditForm = ({ userData }: EditFormProps) => {
                             onChange={(ev) => setEmail(ev.target.value)}
                             error={emailError}
                         />
-                        {
-                            emailError ?
-                            
-                            (<FormHelperText error>Enter a valid email</FormHelperText>)
-                            :
-                            (<FormHelperText>Enter a Email</FormHelperText>)
-                        }
+                        <CustomHelperText error={emailError} field="email"/>
 
                         <TextField 
                             sx={{mt: 7}} 
@@ -131,7 +109,6 @@ export const EditForm = ({ userData }: EditFormProps) => {
                             label="City" 
                             value={city}  
                             onChange={(ev) => setCity(ev.target.value)}
-                            error={emailError}
                         />
 
                         <TextField 
@@ -140,7 +117,6 @@ export const EditForm = ({ userData }: EditFormProps) => {
                             label="Username" 
                             value={username}  
                             onChange={(ev) => setUsername(ev.target.value)}
-                            error={emailError}
                         />
 
                         <Button 
@@ -162,8 +138,6 @@ export const EditForm = ({ userData }: EditFormProps) => {
                     </Box>
                 </CardContent>
             </Card> 
-
-            
         </div>
     )
 }

@@ -4,6 +4,8 @@ import { createSearchParams, useNavigate } from "react-router-dom";
 import { useAppDispatch } from "../../redux/hooks";
 import { addNewUser, User } from "../../redux/slices/userSlice";
 import { createUser } from "../../services/user";
+import { regex } from "../../utils/regex";
+import { CustomHelperText } from "../CustomHelperText/CustomHelperText";
 
 
 export const AddForm = () => {
@@ -26,8 +28,6 @@ export const AddForm = () => {
 
     const handleOnSubmit = async (event: FormEvent) => {
         event.preventDefault()
-        const emailRegex = /^(([^<>()[\]\.,;:\s@\"]+(\.[^<>()[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
-        
         setEmailError(false)
         setNameError(false)
 
@@ -41,19 +41,19 @@ export const AddForm = () => {
 
         if(name && email) {
 
-            if(!emailRegex.test(email)) {
+            if(!regex.email.test(email)) {
                 setEmailError(true)
                 return          
             }
             try {
-            
                 let newUser: User = {id: 0, name, email, username, city}
-            
+    
                 const res = await createUser(newUser)
                 const createdUser = await res.json()                
                 dispatch(addNewUser(createdUser))
 
             } catch(err) { console.error(err) }
+
             navigate({
                 pathname: '/home',
                 search: `${createSearchParams({redirect: 'userAdded'})}`
@@ -83,13 +83,7 @@ export const AddForm = () => {
                             onChange={(ev) => setName(ev.target.value)}
                             error={nameError} 
                         />
-                        {
-                            nameError ?
-                            
-                            (<FormHelperText error>The field can't be empty</FormHelperText>)
-                            :
-                            (<FormHelperText>Enter a name</FormHelperText>)
-                        }
+                        <CustomHelperText error={nameError} field="name"/>
 
                         <TextField 
                             sx={{mt: 7}} 
@@ -101,13 +95,7 @@ export const AddForm = () => {
                             onChange={(ev) => setEmail(ev.target.value)}
                             error={emailError}
                         />
-                        {
-                            emailError ?
-                            
-                            (<FormHelperText error>Enter a valid email</FormHelperText>)
-                            :
-                            (<FormHelperText>Enter a Email</FormHelperText>)
-                        }
+                        <CustomHelperText error={emailError} field="email"/>
 
                         <TextField 
                             sx={{mt: 7}} 

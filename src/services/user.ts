@@ -13,6 +13,11 @@ export const getUsers = async (): Promise<UserData[]> => {
     return usersList
 };
 
+export const getUserById = async (userId: number): Promise<UserData> => {
+    const res = await fetch(`${process.env.REACT_APP_URL!}/${userId}`)
+    return await res.json()
+};
+
 export const createUser = async (user: User) => {
     const res = await fetch(process.env.REACT_APP_URL!, {
         method: 'POST',
