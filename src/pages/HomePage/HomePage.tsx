@@ -1,7 +1,7 @@
 /* eslint-disable no-restricted-globals */
 import { Alert, Button, Card, CardContent, CardHeader, Modal, Paper, Snackbar, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from "@mui/material";
 import React, { useState } from "react";
-import { Link, Navigate, useLocation } from "react-router-dom";
+import { Link, Navigate, useLocation, useSearchParams } from "react-router-dom";
 import { EmptyState } from "../../components/EmptyState/EmptyState";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import { removeUserById, selectUsers } from "../../redux/slices/userSlice";
@@ -15,13 +15,15 @@ interface NavigateState {
 }
 
 export const HomePage = () => {
-    const location = useLocation()    
-    const { state } = location as NavigateState
+    // const location = useLocation()    
+    // const { state } = location as NavigateState
+    const [params, setParams] = useSearchParams()
+
+    const [openSnackAdd, setOpenSnackAdd] = useState(params.get('redirect') === 'userAdded');
+    const [openSnackEdit, setOpenSnackEdit] = useState(params.get('redirect') === 'userEdited');
     
     const users = useAppSelector(selectUsers)
     const [open, setOpen] = useState(false);
-    const [openSnackAdd, setOpenSnackAdd] = useState(false);
-    const [openSnackEdit, setOpenSnackEdit] = useState(false);
     const dispatch = useAppDispatch()
     const [selectedUserId, setSelectedUserId] = useState(0);
 
@@ -44,9 +46,6 @@ export const HomePage = () => {
         setSelectedUserId(userId)
     }
 
-    if(users?.length === 0) {
-        return <EmptyState/>
-    }
 
     return (
         <>
@@ -65,7 +64,7 @@ export const HomePage = () => {
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {   users && users.length === 0 
+                            {   users && users.length > 0 
                                 ?
                                 (
                                     users?.map((user) => (
@@ -103,7 +102,7 @@ export const HomePage = () => {
                             }
                         </TableBody>
                     </Table>
-                    {users && users.length === 0  &&
+                    {users && users.length > 0  &&
                         <Link to={`/add`} style={{textDecoration: 'none'}}>
                         <Button 
                             sx={{m: 5}}

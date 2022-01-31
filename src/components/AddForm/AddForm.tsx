@@ -1,17 +1,13 @@
-import { Alert, Box, Button, Card, CardContent, CardHeader, Divider, FormHelperText, Snackbar, TextField } from "@mui/material";
+import { Box, Button, Card, CardContent, CardHeader, Divider, FormHelperText, TextField } from "@mui/material";
 import React, { FormEvent, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { createSearchParams, useNavigate } from "react-router-dom";
 import { useAppDispatch } from "../../redux/hooks";
 import { addNewUser, User } from "../../redux/slices/userSlice";
 import { createUser } from "../../services/user";
 
-interface EditFormProps {
-    userData?: User
-}
 
 export const AddForm = () => {
     const navigate = useNavigate()
-    const [open, setOpen] = useState(false)
 
     const [name, setName] = useState('')
     const [nameError, setNameError] = useState(false)
@@ -19,20 +15,19 @@ export const AddForm = () => {
     const [email, setEmail] = useState('')
     const [emailError, setEmailError] = useState(false)
 
+    const [city, setCity] = useState('')
+    const [username, setUsername] = useState('')
+
     const dispatch = useAppDispatch()
 
     const handleCancel = () => {
         navigate('/home')
     }
 
-    const handleClose = () => {
-        setOpen(false)
-        navigate('/home')
-    }
-
     const handleOnSubmit = async (event: FormEvent) => {
         event.preventDefault()
         const emailRegex = /^(([^<>()[\]\.,;:\s@\"]+(\.[^<>()[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
+        
         setEmailError(false)
         setNameError(false)
 
@@ -52,14 +47,17 @@ export const AddForm = () => {
             }
             try {
             
-                let newUser: User = {id: 0, name, email}
+                let newUser: User = {id: 0, name, email, username, city}
             
                 const res = await createUser(newUser)
                 const createdUser = await res.json()                
                 dispatch(addNewUser(createdUser))
-            } catch(err) { console.error(err) }
-            setOpen(true)
 
+            } catch(err) { console.error(err) }
+            navigate({
+                pathname: '/home',
+                search: `${createSearchParams({redirect: 'userAdded'})}`
+            })
         }
     }
     
@@ -111,6 +109,22 @@ export const AddForm = () => {
                             (<FormHelperText>Enter a Email</FormHelperText>)
                         }
 
+                        <TextField 
+                            sx={{mt: 7}} 
+                            fullWidth
+                            label="City" 
+                            value={city}  
+                            onChange={(ev) => setCity(ev.target.value)}
+                        />
+
+                        <TextField 
+                            sx={{mt: 7}} 
+                            fullWidth
+                            label="Username" 
+                            value={username}  
+                            onChange={(ev) => setUsername(ev.target.value)}
+                        />
+
                         <Button 
                             variant="outlined"
                             size="large"
@@ -131,11 +145,7 @@ export const AddForm = () => {
                 </CardContent>
             </Card> 
 
-            <Snackbar open={open} autoHideDuration={5000} onClose={handleClose} sx={{width: '600px'}}>
-                <Alert onClose={handleClose} severity="success" sx={{ width: '100%' }}>
-                    User added with success!
-                </Alert>
-            </Snackbar>
+            
         </div>
     )
 }

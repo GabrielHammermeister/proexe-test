@@ -1,6 +1,6 @@
 import { Alert, Box, Button, Card, CardContent, CardHeader, Collapse, Divider, FormHelperText, IconButton, Snackbar, TextField } from "@mui/material";
 import React, { FormEvent, useCallback, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { createSearchParams, useNavigate, useSearchParams } from "react-router-dom";
 import { useAppDispatch } from "../../redux/hooks";
 import { updateUserById, User } from "../../redux/slices/userSlice";
 import { updateUser } from "../../services/user";
@@ -16,13 +16,19 @@ export const EditForm = ({ userData }: EditFormProps) => {
     const [name, setName] = useState(userData?.name)
     const [nameError, setNameError] = useState(false)
 
+    const [city, setCity] = useState(userData?.city)
+    const [cityError, setCityError] = useState(false)
+
+    const [username, setUsername] = useState(userData?.username)
+    const [usernameError, setUsernameError] = useState(false)
+
     const [email, setEmail] = useState(userData?.email)
     const [emailError, setEmailError] = useState(false)
 
     const dispatch = useAppDispatch()
+    const [searchParams, setSearchParams] = useSearchParams()
 
-    const handleClose = () => {
-        setOpen(false)
+    const handleCancel = () => {
         navigate('/home')
     }
 
@@ -39,8 +45,14 @@ export const EditForm = ({ userData }: EditFormProps) => {
         if(!email) {
             setEmailError(true)
         }
+        if(!username) {
+            setUsernameError(true)
+        }
+        if(!city) {
+            setCityError(true)
+        }
 
-        if(userData && name && email) {
+        if(userData && name && email && city && username) {
 
             if(!emailRegex.test(email)) {
                 setEmailError(true)
@@ -50,11 +62,17 @@ export const EditForm = ({ userData }: EditFormProps) => {
             let updatedUser = {...userData}
             updatedUser.name = name
             updatedUser.email = email
+            updatedUser.city = city
+            updatedUser.username = username
+
             dispatch(updateUserById(updatedUser))
             try {
                 updateUser(updatedUser)
             } catch(err) { console.error(err) }
-            setOpen(true)
+            navigate({
+                pathname: '/home',
+                search: `${createSearchParams({redirect: 'userEdited'})}`
+            })
             
         }
     }
@@ -84,9 +102,9 @@ export const EditForm = ({ userData }: EditFormProps) => {
                         {
                             nameError ?
                             
-                            (<FormHelperText error>The field can't be empty</FormHelperText>)
+                            (<FormHelperText error>This field is required</FormHelperText>)
                             :
-                            (<FormHelperText>Enter a name</FormHelperText>)
+                            (<FormHelperText>Enter a Name</FormHelperText>)
                         }
 
                         <TextField 
@@ -107,6 +125,32 @@ export const EditForm = ({ userData }: EditFormProps) => {
                             (<FormHelperText>Enter a Email</FormHelperText>)
                         }
 
+                        <TextField 
+                            sx={{mt: 7}} 
+                            fullWidth
+                            label="City" 
+                            value={city}  
+                            onChange={(ev) => setCity(ev.target.value)}
+                            error={emailError}
+                        />
+
+                        <TextField 
+                            sx={{mt: 7}} 
+                            fullWidth
+                            label="Username" 
+                            value={username}  
+                            onChange={(ev) => setUsername(ev.target.value)}
+                            error={emailError}
+                        />
+
+                        <Button 
+                            variant="outlined"
+                            size="large"
+                            color="error"
+                            sx={{mt: 7, mr: 4}}
+                            onClick={handleCancel}
+                        >
+                            cancel</Button>
                         <Button 
                             variant="contained"
                             size="large"
@@ -119,11 +163,7 @@ export const EditForm = ({ userData }: EditFormProps) => {
                 </CardContent>
             </Card> 
 
-            <Snackbar open={open} autoHideDuration={5000} onClose={handleClose} sx={{width: '600px'}}>
-                <Alert onClose={handleClose} severity="success" sx={{ width: '100%' }}>
-                    User updated with success!
-                </Alert>
-            </Snackbar>
+            
         </div>
     )
 }
