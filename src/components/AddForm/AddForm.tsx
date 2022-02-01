@@ -1,11 +1,12 @@
 import { Box, Button, Card, CardContent, CardHeader, Divider, TextField } from "@mui/material";
 import React, { FormEvent, useState } from "react";
-import { createSearchParams, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useAppDispatch } from "../../redux/hooks";
 import { addNewUser, User } from "../../redux/slices/userSlice";
 import { createUser } from "../../services/user";
 import { regex } from "../../utils/regex";
 import { CustomHelperText } from "../CustomHelperText/CustomHelperText";
+import { CustomSnackbar } from "../CustomSnackbar/CustomSnackbar";
 
 
 export const AddForm = () => {
@@ -19,8 +20,14 @@ export const AddForm = () => {
 
     const [city, setCity] = useState('')
     const [username, setUsername] = useState('')
-
     const dispatch = useAppDispatch()
+    
+    const [openSnackAdd, setOpenSnackAdd] = useState(false);
+
+    const handleCloseSnack = () => {
+        setOpenSnackAdd(false)
+        navigate('/home')
+    }
 
     const handleCancel = () => {
         navigate('/home')
@@ -51,13 +58,10 @@ export const AddForm = () => {
                 const res = await createUser(newUser)
                 const createdUser = await res.json()                
                 dispatch(addNewUser(createdUser))
-
+                await setOpenSnackAdd(true)
             } catch(err) { console.error(err) }
 
-            navigate({
-                pathname: '/home',
-                search: `${createSearchParams({redirect: 'userAdded'})}`
-            })
+            
         }
     }
     
@@ -134,6 +138,11 @@ export const AddForm = () => {
             </Card> 
 
             
+            <CustomSnackbar
+                openSnackbar={openSnackAdd}
+                handleCloseSnackbar={handleCloseSnack}
+                message="User added with success!"
+            />
         </div>
     )
 }

@@ -1,11 +1,12 @@
 import { Box, Button, Card, CardContent, CardHeader, Divider, TextField } from "@mui/material";
 import React, { FormEvent, useState } from "react";
-import { createSearchParams, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useAppDispatch } from "../../redux/hooks";
 import { updateUserById, User } from "../../redux/slices/userSlice";
 import { updateUser } from "../../services/user";
 import { regex } from "../../utils/regex";
 import { CustomHelperText } from "../CustomHelperText/CustomHelperText";
+import { CustomSnackbar } from "../CustomSnackbar/CustomSnackbar";
 
 interface EditFormProps {
     userData: User
@@ -24,6 +25,13 @@ export const EditForm = ({ userData }: EditFormProps) => {
     
     const [city, setCity] = useState(userData.city)
     const [username, setUsername] = useState(userData.username)
+
+    const [openSnackEdit, setOpenSnackEdit] = useState(false);
+
+    const handleCloseSnack = () => {
+        setOpenSnackEdit(false)
+        navigate('/home')
+    }
     
 
     const handleCancel = () => {
@@ -55,15 +63,12 @@ export const EditForm = ({ userData }: EditFormProps) => {
             updatedUser.city = city
             updatedUser.username = username
 
-            dispatch(updateUserById(updatedUser))
             try {
-                updateUser(updatedUser)
+
+                dispatch(updateUserById(updatedUser))
+                await updateUser(updatedUser)
+                setOpenSnackEdit(true)
             } catch(err) { console.error(err) }
-            navigate({
-                pathname: '/home',
-                search: `${createSearchParams({redirect: 'userEdited'})}`
-            })
-            
         }
     }
     
@@ -138,6 +143,12 @@ export const EditForm = ({ userData }: EditFormProps) => {
                     </Box>
                 </CardContent>
             </Card> 
+            
+            <CustomSnackbar
+                openSnackbar={openSnackEdit}
+                handleCloseSnackbar={handleCloseSnack}
+                message="User updated with success!"
+            />
         </div>
     )
 }

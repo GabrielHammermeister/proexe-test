@@ -2,10 +2,9 @@
 import { Button } from "@mui/material";
 import { GridSelectionModel } from "@mui/x-data-grid";
 import React, { useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { ConfirmationModal } from "../../components/ConfirmationModal/ConfirmationModal";
 import { CustomDataGrid } from "../../components/CustomDataGrid/CustomDataGrid";
-import { CustomSnackbar } from "../../components/CustomSnackbar/CustomSnackbar";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import { removeUserById, selectUsers } from "../../redux/slices/userSlice";
 import { deleteUserById } from "../../services/user";
@@ -18,23 +17,14 @@ type Selection = {
 
 export const HomePage = () => {
 
-    const [params] = useSearchParams()
+    const users = useAppSelector(selectUsers)
 
-    const [openSnackAdd, setOpenSnackAdd] = useState(params.get('redirect') === 'userAdded');
-    const [openSnackEdit, setOpenSnackEdit] = useState(params.get('redirect') === 'userEdited');
     const [selection, setSelection] = useState<Selection>({ selected: false, list: []});
 
-    const users = useAppSelector(selectUsers)
     const [openConfModalSingle, setOpenConfModalSingle] = useState(false);
     const [openConfModalMultiple, setOpenConfModalMultiple] = useState(false);
     const dispatch = useAppDispatch()
     const [selectedUserId, setSelectedUserId] = useState(0);
-
-    const handleCloseSnack = () => {
-        setOpenSnackAdd(false)
-        setOpenSnackEdit(false)
-        history.replaceState({}, '')
-    }
 
     const handleOnDeleteSingle = async () => {
         try {
@@ -125,18 +115,6 @@ export const HomePage = () => {
                 handleOnDelete={handleOnDeleteMultiple}
                 message="If you click Delete, all information about all selected users will be lost."
             />
-
-            <CustomSnackbar
-                openSnackbar={openSnackAdd}
-                handleCloseSnackbar={handleCloseSnack}
-                message="User added with success!"
-            />
-            <CustomSnackbar
-                openSnackbar={openSnackEdit}
-                handleCloseSnackbar={handleCloseSnack}
-                message="User updated with success!"
-            />
-
         </>
     )
 }
