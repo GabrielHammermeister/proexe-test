@@ -1,12 +1,11 @@
 /* eslint-disable no-restricted-globals */
-import { Alert, Button, Paper, Snackbar, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from "@mui/material";
-import { DataGrid, GridColDef, GridSelectionModel, GridValueGetterParams } from "@mui/x-data-grid";
+import { Button } from "@mui/material";
+import { GridSelectionModel } from "@mui/x-data-grid";
 import React, { useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { ConfirmationModal } from "../../components/ConfirmationModal/ConfirmationModal";
 import { CustomDataGrid } from "../../components/CustomDataGrid/CustomDataGrid";
 import { CustomSnackbar } from "../../components/CustomSnackbar/CustomSnackbar";
-import { EmptyState } from "../../components/EmptyState/EmptyState";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import { removeUserById, selectUsers } from "../../redux/slices/userSlice";
 import { deleteUserById } from "../../services/user";
@@ -26,7 +25,8 @@ export const HomePage = () => {
     const [selection, setSelection] = useState<Selection>({ selected: false, list: []});
 
     const users = useAppSelector(selectUsers)
-    const [openConfModal, setOpenConfModal] = useState(false);
+    const [openConfModalSingle, setOpenConfModalSingle] = useState(false);
+    const [openConfModalMultiple, setOpenConfModalMultiple] = useState(false);
     const dispatch = useAppDispatch()
     const [selectedUserId, setSelectedUserId] = useState(0);
 
@@ -36,19 +36,26 @@ export const HomePage = () => {
         history.replaceState({}, '')
     }
 
-    const handleOnDelete = async () => {
+    const handleOnDeleteSingle = async () => {
         try {
             deleteUserById(selectedUserId)
             dispatch(removeUserById(selectedUserId))
-            setOpenConfModal(false)
+            setOpenConfModalSingle(false)
         } catch (err) { console.error(err) }
     }
 
+    const handleOnDeleteMultiple = () => {
+        selection.list.forEach(userId => {
+            deleteUserById(Number(userId))
+            dispatch(removeUserById(Number(userId)))
+        });
+        setOpenConfModalMultiple(false)
+    }
+
     const handleSelectUser = (userId: number) => {
-        setOpenConfModal(true)
+        setOpenConfModalSingle(true)
         setSelectedUserId(userId)
     }
-    
 
     const handleSelectionChange = (selectionModel: GridSelectionModel) => {
         if(selectionModel.length === 0){
@@ -58,17 +65,10 @@ export const HomePage = () => {
         }
     }
 
-    const handleRemoveSelected = () => {
-        selection.list.forEach(userId => {
-            deleteUserById(Number(userId))
-            dispatch(removeUserById(Number(userId)))
-        });
-    }
-
 
     return (
         <>
-            <div style={{minHeight: '400px', height: '100vh', width: 'clamp(700px, 100%, 1000px)', margin: '0 auto', display: 'flex', alignItems: 'center', flexDirection: 'column'}}>
+            <div style={{minHeight: '400px', height: '100vh', width: 'clamp(700px, 100%, 1200px)', margin: '0 auto', display: 'flex', alignItems: 'center', flexDirection: 'column'}}>
                 {
                     users &&
                     (
@@ -104,7 +104,7 @@ export const HomePage = () => {
                             size="large"
                             variant="contained" 
                             color="primary"
-                            onClick={handleRemoveSelected}
+                            onClick={() => setOpenConfModalMultiple(true)}
                             >
                             Remove Selected
                         </Button>
@@ -113,9 +113,17 @@ export const HomePage = () => {
             
             </div>
             <ConfirmationModal
-                openModal={openConfModal}
-                setOpenModal={setOpenConfModal}
-                handleOnDelete={handleOnDelete}
+                openModal={openConfModalSingle}
+                setOpenModal={setOpenConfModalSingle}
+                handleOnDelete={handleOnDeleteSingle}
+                message="If you click Delete, all information about this user will be lost."
+            />
+
+            <ConfirmationModal
+                openModal={openConfModalMultiple}
+                setOpenModal={setOpenConfModalMultiple}
+                handleOnDelete={handleOnDeleteMultiple}
+                message="If you click Delete, all information about all selected users will be lost."
             />
 
             <CustomSnackbar

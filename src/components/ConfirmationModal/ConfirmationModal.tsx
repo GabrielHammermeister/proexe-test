@@ -5,9 +5,10 @@ interface ConfirmationModalProps {
     openModal: boolean
     setOpenModal: (value: boolean) => void
     handleOnDelete: () => void
+    message: string
 }
 
-export const ConfirmationModal = ({openModal, setOpenModal, handleOnDelete}: ConfirmationModalProps) => {
+export const ConfirmationModal = ({openModal, setOpenModal, handleOnDelete, message }: ConfirmationModalProps) => {
     return (
         <Modal open={openModal}>
             <Card sx={{
@@ -20,7 +21,7 @@ export const ConfirmationModal = ({openModal, setOpenModal, handleOnDelete}: Con
             }}>
                 <CardHeader title="Are you sure?"/>
                 <CardContent>
-                    <Typography>If you click Delete, all information about this user will be lost.</Typography>
+                    <Typography>{message}</Typography>
                 </CardContent>
 
                 <Button 

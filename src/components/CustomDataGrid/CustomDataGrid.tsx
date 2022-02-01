@@ -1,10 +1,8 @@
 import { Button } from "@mui/material";
-import { DataGrid, GridCallbackDetails, GridColDef, GridSelectionModel, GridValueGetterParams } from "@mui/x-data-grid";
+import { DataGrid, GridColDef, GridSelectionModel, GridValueGetterParams } from "@mui/x-data-grid";
 import React from "react";
 import { Link } from "react-router-dom";
-import { useAppDispatch } from "../../redux/hooks";
-import { removeUserById, User } from "../../redux/slices/userSlice";
-import { deleteUserById } from "../../services/user";
+import { User } from "../../redux/slices/userSlice";
 import { EmptyState } from "../EmptyState/EmptyState";
 
 
@@ -21,7 +19,7 @@ export const CustomDataGrid = ({handleSelectUser, handleSelectionChange, users}:
         {
             field: 'name',
             headerName: 'Name',
-            width: 150,
+            width: 200,
             editable: true,
         },
         {
@@ -33,7 +31,7 @@ export const CustomDataGrid = ({handleSelectUser, handleSelectionChange, users}:
         {
             field: 'email',
             headerName: 'Email',
-            width: 110,
+            width: 220,
             editable: true,
         },
         {
@@ -61,12 +59,7 @@ export const CustomDataGrid = ({handleSelectUser, handleSelectionChange, users}:
                 </Button>)
         }
     ];
-
-    const dispatch = useAppDispatch()
-
     
-
-
     return (
         <DataGrid
             sx={{width: '100%', maxHeight: '700px', marginTop: '200px'}}
