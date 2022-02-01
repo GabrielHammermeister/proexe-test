@@ -23,7 +23,7 @@ export const App = () => {
         };
 
         fetchUsersData()
-    }, []);
+    }, [dispatch]);
     
     return (
         <>

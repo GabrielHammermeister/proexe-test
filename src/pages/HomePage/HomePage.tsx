@@ -18,7 +18,7 @@ type Selection = {
 
 export const HomePage = () => {
 
-    const [params, setParams] = useSearchParams()
+    const [params] = useSearchParams()
 
     const [openSnackAdd, setOpenSnackAdd] = useState(params.get('redirect') === 'userAdded');
     const [openSnackEdit, setOpenSnackEdit] = useState(params.get('redirect') === 'userEdited');
